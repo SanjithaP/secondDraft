@@ -1,0 +1,1 @@
+export { default as SettingsScreen } from "./src/screens/SettingsScreen.js";
