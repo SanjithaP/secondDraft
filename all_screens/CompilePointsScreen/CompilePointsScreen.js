@@ -1,14 +1,19 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, ScrollView, Dimensions, TouchableOpacity, ImageBackground } from "react-native";
 
 //idk why this only works 50% of the time
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+//redo all of compile points screen to look like new layout
 //will switch index to async storage eventually
 //dailyPoint total resets daily w/ async
 //weeekly total resets weekly w/ async
-//lifetime never resets but is stored in async
+
+const STORAGE_KEY = '@saveTasks'
+const DESIRED_TASKS_KEY = '@saveDesiredTasks'
+const COMPILED_POINT_KEY = "@saveEarnedPoints"
 
 class CompilePointsScreen extends React.Component {
 
@@ -18,77 +23,139 @@ class CompilePointsScreen extends React.Component {
 
   state = {
     index: 0,
-    dailyTotalPoints: 0,
-    weeklyPointTotal: 0,
-    lifetimePointTotal: 0,
-    endingText: ''
+    endingText: '',
+    activityCounter: 1,
+    activityList: [
+
+    ],
+    tempArray: [
+      {
+        activity: 'Press Yes to Begin',
+        toggled: false,
+        text: "Off",
+        level: "",
+        completed: 0,
+        numToNextLevel: 1
+      },
+    ]
   }
 
-  updateYes = () => {
-    
-    if(this.state.index < global.globalDesiredTasksArray.length - 1) {
-      this.setState({
-        dailyTotalPoints: this.state.dailyTotalPoints + parseInt(global.globalDesiredTasksArray[this.state.index].pointValue),
-        weeklyPointTotal: this.state.weeklyPointTotal + parseInt(global.globalDesiredTasksArray[this.state.index].pointValue),
-        lifetimePointTotal: this.state.lifetimePointTotal + parseInt(global.globalDesiredTasksArray[this.state.index].pointValue),
-        index: this.state.index + 1
-      })
-    }
-
-    if(this.state.index == global.globalDesiredTasksArray.length - 1) {
-      this.setState({
-        endingText: 'End of Activities'
-      })
+  save = async (newDesiredTasksArray) => {
+    try {
+      await AsyncStorage.setItem(DESIRED_TASKS_KEY, JSON.stringify(newDesiredTasksArray))
+      alert('Data successfully saved!')
+      this.setState({ 
+        activityList: newDesiredTasksArray,
+       })
+    } catch (e) {
+      alert('Failed to save name.')
     }
   }
 
-  updateNo = () => {
-    
-    if(this.state.index < global.globalDesiredTasksArray.length - 1) {
-      this.setState({
-        index: this.state.index + 1
-      })
-    }
+  retrieveData = async () => {
+    try {
+      const taskArray = await AsyncStorage.getItem(DESIRED_TASKS_KEY)
+  
+      if(taskArray != null) {
+        const parsedTaskArray = JSON.parse(taskArray);
 
-    if(this.state.index == global.globalDesiredTasksArray.length - 1) {
-      this.setState({
-        endingText: 'End of Activities'
-      })
+        for(var i = 0; i < parsedTaskArray.length; i++) {
+          if(parsedTaskArray[i].toggled) {
+            this.state.tempArray.push(parsedTaskArray[i])
+          }
+        }
+
+        this.setState({
+          activityList: this.state.tempArray
+        })
+      }
+        
+    } catch (e) {
+      alert('Failed to load name.')
     }
-  }
+}
+
+
+componentDidMount() {
+  this.retrieveData()
+}
 
   render() {
   return (
     <ScrollView>
-    <View style={styles.container}>
-      
-      <View style = {styles.topBar1}>
-        <Text style = {styles.titleText}>Today's Point Total: {this.state.dailyTotalPoints}</Text>
-      </View>
-      <View style = {styles.topBar2}>
-        <Text style = {styles.titleText}>This Week's Point Total: {this.state.weeklyPointTotal}</Text>
-      </View>
-      <View style = {styles.topBar3}>
-        <Text style = {styles.titleText}>Lifetime Point Total: {this.state.lifetimePointTotal}</Text>
-      </View>
+      <ImageBackground
+      style={{width: windowWidth, height: windowHeight}}
+      source={require("../PointsScreen/Sign-In-Background.png")}
+    >
 
+  
     <View style = {styles.middleContainer}>
     <TouchableOpacity
-      onPress = {this.updateNo}
+      onPress = {() => {
+        if(this.state.index < this.state.activityList.length) {
+
+          if(this.state.index == this.state.activityList.length-1) {
+            this.setState({
+              activityList: this.state.activityList
+            })
+          }
+          else {
+          this.setState({
+            index: this.state.index + 1,
+            activityList: this.state.activityList
+          })
+          }  
+        }
+
+      }}
     >
       <View style = {styles.saveButton}>
         <Text style = {styles.buttonText}>Maybe Tomorrow</Text>
       </View>
+      
     </TouchableOpacity>
 
 <View style = {styles.objectTextContainer}>
-  <Text>{global.globalDesiredTasksArray[this.state.index].pointValue}</Text>
-  <Text>{global.globalDesiredTasksArray[this.state.index].activity}</Text>
+  <Text>{this.state.tempArray[this.state.index].activity}</Text>
+  <Text>{this.state.tempArray[this.state.index].level}</Text>
   <Text>{this.state.endingText}</Text>
 </View>
 
     <TouchableOpacity
-      onPress = {this.updateYes}
+      onPress = {() => {
+        if(this.state.index < this.state.activityList.length) {
+
+          this.state.activityList[this.state.index].completed += 1
+          this.state.activityList[this.state.index].numToNextLevel -= 1
+
+          if(this.state.activityList[this.state.index].numToNextLevel == 0) {
+            this.state.activityList[this.state.index].level += 1
+            this.state.activityList[this.state.index].numToNextLevel = this.state.activityList[this.state.index].level + 1
+            this.state.activityList[this.state.index].completed = 0
+          }
+          
+          if(this.state.index == this.state.activityList.length-1) {
+            this.setState({
+              activityList: this.state.activityList
+            })
+          }
+          else {
+          this.setState({
+            index: this.state.index + 1,
+            activityList: this.state.activityList
+          })
+          }
+
+        }
+        else {
+          this.setState({
+            endingText: "End of Activities"
+          })
+        }
+
+        const onSave = this.save
+        onSave(this.state.activityList)
+      }}
     >
       <View style = {styles.saveButton}>
         <Text style = {styles.buttonText}>Yes</Text>
@@ -96,7 +163,8 @@ class CompilePointsScreen extends React.Component {
     </TouchableOpacity>
     </View>
 
-    </View>
+   
+    </ImageBackground>
     </ScrollView>
   );
 }
@@ -110,30 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
 
   },
-  topBar1: {
-    height: windowHeight/10,
-    width: windowWidth,
-    justifyContent: 'center',
-    backgroundColor: '#c5abff',
-  },
-  topBar2: {
-    height: windowHeight/10,
-    width: windowWidth,
-    justifyContent: 'center',
-    backgroundColor: '#a075ff',
-  },
-  topBar3: {
-    height: windowHeight/10,
-    width: windowWidth,
-    justifyContent: 'center',
-    backgroundColor: '#773dff',
-  },
-  titleText: {
-    fontSize: windowHeight/25,
-    textAlign: 'center',
-    fontFamily: 'Arial',
-    color: 'white',
-},
+  
 saveButton: {
   backgroundColor: "#5233ff",
   justifyContent: "center",

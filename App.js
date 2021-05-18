@@ -14,6 +14,12 @@ import SignIn from './all_screens/SignInScreen/SignIn'
 import AsyncTestScreen from './all_screens/AsyncTestScreen/AsyncTestScreen';
 import CompilePointsScreen from './all_screens/CompilePointsScreen/CompilePointsScreen';
 
+// import LoadingScreen from './all_screens/SignInScreen/LoadingScreen';
+// import LoginScreen from './all_screens/SignInScreen/LoginScreen'
+// import DashboardScreen from './all_screens/SignInScreen/DashboardScreen'
+
+
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -29,7 +35,8 @@ export default function App() {
         <Stack.Screen 
           name="HomeScreen" 
           component={HomeScreen} 
-        />   
+        /> 
+
         <Stack.Screen   
           name="Calendar" 
           component={Calendar} 

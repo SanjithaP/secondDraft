@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Image, Text,ScrollView, TouchableOpacity} from "react-native";
+import { StyleSheet, View, Image, Text,ScrollView, TouchableOpacity, Dimensions, ImageBackground} from "react-native";
 //import { TouchableOpacity } from "react-native-gesture-handler";
-
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 //import Icon from "react-native-vector-icons/Ionicons";
 
 class HomeScreen extends React.Component {
@@ -14,31 +15,37 @@ class HomeScreen extends React.Component {
   return (
     <ScrollView style={styles.container}>
 
-    <View style = {styles.titleContainer}>
-      <Text style={styles.peacePlanner}>Peace {"\n"}Planner</Text>
-    </View>
-      
-    <View style = {styles.subheadingContainer}>
-      <Text style={styles.subheading}>Mental health, made easy</Text>
-    </View>
-      
-    <View style = {styles.imageContainer}>
+    <ImageBackground
+      style={styles.background}
+      source={require("../assets/images//Sign-In-Background.png")}
+    >
+
     <Image
-        source={require("../assets/images/Phone_customization-rafiki.png")}
-        style={{height: 200, width: 200, }}
-      />
+        source={require("../assets/images/Logo.png")}
+        style={{height: 100, width: 350, borderRadius: 50}}
+    />
 
-    </View>
+    <Image
+        source={require("../assets/images/Mental-health-bro.png")}
+        style={{height: 300, width: 300, }}
+    />
 
-
-
+    {/* <View style = {styles.titleContainer}>
+      <Text style={styles.peacePlanner}>Peace {"\n"}Planner</Text>
+    </View> */}
+      
+    {/* <View style = {styles.subheadingContainer}>
+      <Text style={styles.subheading}>Mental health, made easy</Text>
+    </View> */}
+      
+   
       <View style={styles.buttonPurpleRow}>
 
-      <TouchableOpacity onPress={() => this.props.navigation.navigate("Calendar")}>
+      {/* <TouchableOpacity onPress={() => this.props.navigation.navigate("Calendar")}>
         <View style = {styles.purpleButton}>
           <Text style = {styles.navigateButtonText}>Calendar</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
         <TouchableOpacity onPress={() => this.props.navigation.navigate("SelfCareListScreen")}>
         <View style = {styles.purpleButton}>
@@ -55,18 +62,18 @@ class HomeScreen extends React.Component {
       </TouchableOpacity>
       
 
-      <TouchableOpacity onPress={() => this.props.navigation.navigate("AsyncTestScreen")}>
+      {/* <TouchableOpacity onPress={() => this.props.navigation.navigate("AsyncTestScreen")}>
         <View style = {styles.purpleButton}>
           <Text style = {styles.navigateButtonText}>Async</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       </View>
 
       
       
       
-    
+    </ImageBackground>
     </ScrollView>
   );
   }
@@ -74,20 +81,14 @@ class HomeScreen extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    width: windowWidth,
+    height: windowHeight
   },
-  titleContainer: {
-    flex: 1,
-    margin: 20
-  },
-  subheadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    margin: 10
-  },
+  
+  
   imageContainer: {
     alignItems: 'center',
-    flex: 1
+    justifyContent: 'center'
   },
   peacePlanner: {
     fontFamily: "Arial",
@@ -102,16 +103,14 @@ const styles = StyleSheet.create({
   },
   buttonPurpleRow: {
     flexDirection: "row",
-    flex: 1,
-    marginTop: 30,
     justifyContent: 'center',
   },
   purpleButton: {
     backgroundColor: "#5233ff",
     justifyContent: "center",
     alignItems: "center",
-    width: 70,
-    height: 70,
+    width: windowWidth/3,
+    height: windowHeight/10,
     margin: 10,
     borderRadius: 10,
   },
@@ -119,6 +118,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14
   },
+  background: {
+    width: windowWidth,
+    height: windowHeight,
+    justifyContent: 'center',
+    alignItems: 'center'
+},
 
 });
 
